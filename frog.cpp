@@ -14,7 +14,7 @@ int main(){
         int cnt = 0;
         for (int i = 0; i < n; ++i){
             jump++;
-            if (jump >= mid && str[i] == '0'){
+            if (jump > mid){
                 if (i - coord >= jump){
                     possible = false;
                     break;
