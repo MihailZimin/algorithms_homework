@@ -1,0 +1,52 @@
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        int n = heights.size();
+        vector<int> prefix_max(n);
+        prefix_max[0] = -1;
+        vector<pair<int, int>> stack{{heights[0], 0}};
+        for (int i = 1; i < n; ++i){
+            if (heights[i] > stack.back().first){
+                prefix_max[i] = stack.back().second;
+                stack.push_back({heights[i], i});
+            }
+            else{
+                while (!stack.empty() && stack.back().first >= heights[i]){
+                    stack.pop_back();
+                }
+                if (stack.empty())
+                    prefix_max[i] = -1;
+                else
+                    prefix_max[i] = stack.back().second;
+                stack.push_back({heights[i] , i});
+            }
+        }
+        stack.clear();
+        stack.push_back({heights.back(), n - 1});
+        vector<int> suffix_max(n);
+        suffix_max.back() = n;
+        for (int i = n - 2; i >= 0; --i){
+            if (heights[i] > stack.back().first){
+                suffix_max[i] = stack.back().second;
+                stack.push_back({heights[i], i});
+            }
+            else{
+                while (!stack.empty() && stack.back().first >= heights[i]){
+                    stack.pop_back();
+                }
+                if (stack.empty())
+                    suffix_max[i] = n;
+                else
+                    suffix_max[i] = stack.back().second;
+                stack.push_back({heights[i] , i});
+            }
+        }
+        long long ans = 0;
+        for (int i = 0; i < n; ++i){
+            int width = suffix_max[i] - prefix_max[i] - 1;
+            if (ans < width * heights[i])
+                ans = width * heights[i];
+        }
+        return ans;
+    }
+};
