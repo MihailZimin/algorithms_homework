@@ -1,0 +1,13 @@
+class Solution:
+    def simplifyPath(self, path: str) -> str:
+        words = path.split('/')[1:]
+        stack = []
+        for word in words:
+            if word == '' or word == '.':
+                continue
+            elif word == '..':
+                if stack:
+                    stack.pop()
+            else:
+                stack.append(word)
+        return '/' + '/'.join(stack)
