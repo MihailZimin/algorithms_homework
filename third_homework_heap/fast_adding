@@ -1,0 +1,31 @@
+#include <bits/stdc++.h>
+
+
+using namespace std;
+using ll = long long;
+
+bool comparator(ll a, ll b){
+    return a <= b;
+}
+
+int main(){
+    ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+    int n; cin >> n;
+    priority_queue<ll> q;
+    for (int i = 0; i < n; ++i){
+        ll tmp; cin >> tmp;
+        q.push(-tmp);
+    }
+    ll answ = 0;
+    while (q.size() > 1){
+        ll first = q.top();
+        q.pop();
+        ll second = q.top();
+        q.pop();
+        ll summ = first + second;
+        answ += -summ;
+        q.push(summ);
+    }
+    cout << answ << '\n';
+
+}
