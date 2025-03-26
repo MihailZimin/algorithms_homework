@@ -1,0 +1,43 @@
+#include <bits/stdc++.h>
+
+
+using namespace std;
+using ll = long long;
+
+struct Element{
+    ll val;
+    int ind;
+};
+
+struct Comparator{
+    bool operator()(const Element& el1, const Element& el2){
+        return el1.val < el2.val;
+    }
+
+};
+
+
+int main(){
+    ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+    int n; cin >> n;
+    priority_queue<Element, vector<Element>, Comparator> q;
+    vector<ll> arr(n);
+    for (int i = 0; i < n; ++i) cin >> arr[i];
+    int k; cin >> k;
+    for (int i = 0; i < k; ++i){
+        q.push({arr[i], i});
+    }
+    cout << q.top().val << ' ';
+    for (int i = k; i < n; ++i){
+        q.push({arr[i], i});
+        while (!q.empty()){
+            Element possible_max = q.top();
+            if (i - possible_max.ind >= k)
+                q.pop();
+            else{
+                cout << possible_max.val << ' ';
+                break;
+            }
+        }
+    }
+}
