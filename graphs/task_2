@@ -4,11 +4,10 @@ public:
     vector<vector<int>> stck;
     vector<vector<int>> path;
     void dfs(int v, map<int, vector<int>>& graph){
-        for (int u: graph[v]){
-            if (used.find({v, u}) != used.end())
-                continue;
+        while (!graph[v].empty()) {
+            int u = graph[v].back();
+            graph[v].pop_back();
             stck.push_back({v, u});
-            used.insert({v, u});
             dfs(u, graph);
         }
         if (!stck.empty()){
