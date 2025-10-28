@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void print(vector<int>& arr){
+    for (int i: arr)
+        cout << i << ' ';
+    cout << '\n';
+}
+
+int bfs(int st, int fi, vector<vector<int>>& graph){
+    int n = graph.size();
+    vector<int> dp(n, 0);
+    vector<int> visited(n, 0);
+    vector<int> shortest_dist(n, 1e9);
+    shortest_dist[st] = 0;
+    dp[st] = 1;
+    queue<int> q;
+    q.push(st);
+    bool fl = false;
+    while (!q.empty()){
+        int cur = q.front();
+        q.pop();
+        if (cur == fi) break;
+        for (int u: graph[cur]){
+            if (!visited[u]){
+                visited[u] = 1;
+                shortest_dist[u] = shortest_dist[cur] + 1;
+                q.push(u);
+            }
+            if (shortest_dist[cur] + 1 == shortest_dist[u])
+                dp[u] += dp[cur];
+        }
+    }
+    return dp[fi];
+}
+
+int main(){
+    int st = 0, fi = 3;
+    vector<vector<int>> graph = {
+        {1, 2},
+        {3, 2},
+        {3, 1},
+        {},
+    };
+    cout << bfs(st, fi, graph);
+
+}
