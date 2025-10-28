@@ -1,0 +1,30 @@
+class Solution {
+public:
+    map<pair<string, string>, int> used;
+    vector<string> path;
+    map<string, vector<string>> graph;
+    
+    void dfs(string airport) {
+        auto& destinations = graph[airport];
+        while (!destinations.empty()) {
+            string next = destinations.back();
+            destinations.pop_back();
+            dfs(next);
+        }
+        path.push_back(airport);
+    }
+
+    vector<string> findItinerary(vector<vector<string>>& tickets) {
+        for (auto& ticket : tickets) {
+            graph[ticket[0]].push_back(ticket[1]);
+        }
+        
+        for (auto& [from, to_list] : graph) {
+            sort(to_list.rbegin(), to_list.rend());
+        }
+        
+        dfs("JFK");
+        reverse(path.begin(), path.end());
+        return path;
+    }
+};
