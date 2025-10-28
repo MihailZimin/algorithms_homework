@@ -1,0 +1,42 @@
+class Solution {
+public:
+    set<pair<int, int>> used;
+    vector<vector<int>> stck;
+    vector<vector<int>> path;
+    void dfs(int v, map<int, vector<int>>& graph){
+        for (int u: graph[v]){
+            if (used.find({v, u}) != used.end())
+                continue;
+            stck.push_back({v, u});
+            used.insert({v, u});
+            dfs(u, graph);
+        }
+        if (!stck.empty()){
+            path.push_back(stck.back());
+            stck.pop_back();
+        }
+    }
+    vector<vector<int>> validArrangement(vector<vector<int>>& pairs) {
+        map<int, vector<int>> graph;
+        map<int, int> cnt_go_out;
+        map<int, int> cnt_go_in;
+        for (auto& el: pairs){
+            graph[el[0]].push_back(el[1]);
+            cnt_go_out[el[0]]++;
+            cnt_go_in[el[1]]++;
+        }
+        vector<int> candidates;
+        for (auto& el: pairs){
+            if (cnt_go_out[el[0]] == cnt_go_in[el[0]] + 1){
+                candidates.push_back(el[0]);
+            }
+        }
+        int st = pairs[0][0];
+        if (candidates.size() != 0){
+            st = candidates[0];
+        }
+        dfs(st, graph);
+        reverse(path.begin(), path.end());
+        return path;
+    }
+};
