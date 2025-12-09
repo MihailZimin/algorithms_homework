@@ -1,0 +1,79 @@
+class Solution {
+public:
+    int shortestPathAllKeys(vector<string>& grid) {
+        if (grid.empty() || grid[0].empty()) return -1;
+        
+        int m = grid.size(), n = grid[0].size();
+        int start_i = 0, start_j = 0;
+        vector<int> target(6, 0);
+        
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                char ch = grid[i][j];
+                if (ch == '@') {
+                    start_i = i;
+                    start_j = j;
+                } else if (islower(ch)) {
+                    target[ch - 'a'] = 1;
+                }
+            }
+        }
+        
+        vector<int> start_key(6, 0);
+        queue<tuple<int, int, vector<int>>> q;
+        set<tuple<int, int, vector<int>>> visited;
+
+        q.push({start_i, start_j, start_key});
+        visited.insert({start_i, start_j, start_key});
+
+        vector<pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        int steps = 0;
+
+        while (!q.empty()) {
+            int size = q.size();
+            for (int i = 0; i < size; ++i) {
+                auto [x, y, keys] = q.front();
+                q.pop();
+                
+                for (auto& dir : directions) {
+                    int r = x + dir.first;
+                    int c = y + dir.second;
+                    
+                    if (r < 0 || r >= m || c < 0 || c >= n || grid[r][c] == '#') {
+                        continue;
+                    }
+                    
+                    char cell = grid[r][c];
+                    if (cell == '.' || cell == '@') {
+                        auto state = make_tuple(r, c, keys);
+                        if (!visited.count(state)) {
+                            visited.insert(state);
+                            q.push({r, c, keys});
+                        }
+                    } else if (islower(cell)) {
+                        vector<int> new_keys = keys;
+                        new_keys[cell - 'a'] = 1;
+                        if (new_keys == target) return steps + 1;
+
+                        auto state = make_tuple(r, c, new_keys);
+                        if (!visited.count(state)) {
+                            visited.insert(state);
+                            q.push({r, c, new_keys});
+                        }
+                    } else {
+                        if (keys[tolower(cell) - 'a'] == 1) {
+                            auto state = make_tuple(r, c, keys);
+                            if (!visited.count(state)) {
+                                visited.insert(state);
+                                q.push({r, c, keys});
+                            }
+                        }
+                    }
+                }
+            }
+            ++steps;
+        }
+        
+        return -1;
+    }
+};
