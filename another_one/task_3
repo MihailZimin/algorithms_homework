@@ -1,0 +1,135 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <string>
+#include <sstream>
+
+using namespace std;
+// как я понял из условия роботы могут ждать друг друга
+pair<vector<vector<int>>, vector<vector<pair<int, int>>>> findDistances(int rowStart, int colStart, vector<string>& graph) {
+    int n = graph.size();
+    int m = graph[0].size();
+
+    vector<pair<int, int>> directions = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1},
+    };
+
+    queue<pair<int, int>> q;
+    vector<vector<int>> visited(n, vector<int>(m, 0));
+    visited[rowStart][colStart] = 1;
+    vector<vector<pair<int, int>>> from(n, vector<pair<int, int>>(m, {}));
+    q.push({ rowStart, colStart });
+    vector<vector<int>> distances(n, vector<int>(m, 1e8));
+    distances[rowStart][colStart] = 0;
+    while (!q.empty()) {
+        auto [curRow, curCol] = q.front();
+        q.pop();
+        for (auto [dx, dy] : directions) {
+            int nextRow = curRow + dy;
+            int nextCol = curCol + dx;
+            if (nextRow < 0 || nextRow >= n) {
+                continue;
+            }
+            if (nextCol < 0 || nextCol >= m) {
+                continue;
+            }
+            if (visited[nextRow][nextCol])
+                continue;
+            if (graph[nextRow][nextCol] == '#')
+                continue;
+            q.push({ nextRow, nextCol });
+            visited[nextRow][nextCol] = 1;
+            from[nextRow][nextCol] = { curRow, curCol };
+            distances[nextRow][nextCol] = distances[curRow][curCol] + 1;
+        }
+    }
+    return { distances, from };
+}
+
+void traverseToStart(int curRow, int curCol, int rowStart, int colStart, vector<vector<pair<int, int>>>& from, vector<string>& graph) {
+    while (curRow != rowStart || curCol != colStart) {
+        graph[curRow][curCol] = 'o';
+        auto fromPos = from[curRow][curCol];
+        curRow = fromPos.first;
+        curCol = fromPos.second;
+    }
+}
+
+void solve(string& s) {
+    stringstream ss(s);
+    vector<string> graph;
+    string line;
+
+    while (getline(ss, line)) {
+        graph.push_back(line);
+    }
+
+    int n = graph.size();
+    int m = graph[0].size();
+
+    int rowA = -1, colA = -1, rowB = -1, colB = -1, rowF = -1, colF = -1;
+    for (int row = 0; row < n; ++row) {
+        for (int col = 0; col < m; ++col) {
+            if (graph[row][col] == 'A') {
+                rowA = row;
+                colA = col;
+            }
+            if (graph[row][col] == 'B') {
+                rowB = row;
+                colB = col;
+            }
+            if (graph[row][col] == 'F') {
+                rowF = row;
+                colF = col;
+            }
+        }
+    }
+
+    auto [distancesA, fromA] = findDistances(rowA, colA, graph);
+    auto [distancesB, fromB] = findDistances(rowB, colB, graph);
+    auto [distancesF, fromF] = findDistances(rowF, colF, graph);
+
+    int minDistance = 1e8;
+    int minRow = -1;
+    int minCol = -1;
+    for (int row = 0; row < n; ++row) {
+        for (int col = 0; col < m; ++col) {
+            int tmpDistance = distancesA[row][col] + distancesB[row][col] + distancesF[row][col];
+            if (tmpDistance < minDistance) {
+                minDistance = tmpDistance;
+                minRow = row;
+                minCol = col;
+            }
+        }
+    }
+    if (minDistance == 1e8) {
+        cout << "Could not find path\n";
+        return;
+    }
+    traverseToStart(minRow, minCol, rowA, colA, fromA, graph);
+    traverseToStart(minRow, minCol, rowB, colB, fromB, graph);
+    traverseToStart(minRow, minCol, rowF, colF, fromF, graph);
+    graph[rowA][colA] = 'A';
+    graph[rowB][colB] = 'B';
+    graph[rowF][colF] = 'F';
+
+    for (string& s : graph) {
+        cout << s << '\n';
+    }
+}
+
+int main() {
+    string map = "######\n"
+                 "#A..B#\n"
+                 "#.#..#\n"
+                 "#....#\n"
+                 "#F####";
+
+    solve(map);
+
+
+    return 0;
+}
