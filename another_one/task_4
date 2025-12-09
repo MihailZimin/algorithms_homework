@@ -1,0 +1,77 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+void solve(string& s) {
+    stringstream ss(s);
+    vector<string> graph;
+    string line;
+
+    while (getline(ss, line)) {
+        graph.push_back(line);
+    }
+
+    int n = graph.size();
+    int m = graph[0].size();
+
+    queue<pair<int, int>> q;
+
+    for (int row = 0; row < n; ++row) {
+        for (int col = 0; col < m; ++col) {
+            if (graph[row][col] == 'W') {
+                q.push({ row, col });
+            }
+        }
+    }
+
+    vector<pair<int, int>> directions = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1},
+    };
+
+    int time = 0;
+
+    while (!q.empty()) {
+        queue<pair<int, int>> newq;
+        while (!q.empty()) {
+            auto [curRow, curCol] = q.front();
+            q.pop();
+            for (auto [dx, dy] : directions) {
+                int nextRow = curRow + dy;
+                int nextCol = curCol + dx;
+                if (nextRow < 0 || nextRow >= n)
+                    continue;
+                if (nextCol < 0 || nextCol >= m)
+                    continue;
+                if (graph[nextRow][nextCol] == 'W')
+                    continue;
+                newq.push({ nextRow, nextCol });
+                graph[nextRow][nextCol] = 'W';
+            }
+        }
+        q = newq;
+        if (!newq.empty())
+            ++time;
+    }
+
+    cout << time << '\n';
+}
+
+int main() {
+    string map = "WWWWW\n"
+                 "WLLLW\n"
+                 "WLLLW\n"
+                 "WLLLW\n"
+                 "WWWWW";
+
+    solve(map);
+
+
+    return 0;
+}
