@@ -1,0 +1,101 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+void solve(string& s) {
+    stringstream ss(s);
+    vector<string> graph;
+    string line;
+
+    while (getline(ss, line)) {
+        graph.push_back(line);
+    }
+
+    int n = graph.size();
+    int m = graph[0].size();
+
+    int rowStart = -1, colStart = -1;
+    for (int row = 0; row < n; ++row) {
+        for (int col = 0; col < m; ++col) {
+            if (graph[row][col] == 'S') {
+                rowStart = row;
+                colStart = col;
+                break;
+            }
+        }
+    }
+
+    vector<pair<int, int>> directions = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1},
+    };
+
+    queue<pair<int, int>> q;
+    vector<vector<int>> visited(n, vector<int>(m, 0));
+    visited[rowStart][colStart] = 1;
+    vector<vector<pair<int, int>>> from(n, vector<pair<int, int>>(m, {}));
+    pair<int, int> finalPos;
+    bool isSolved = 0;
+    q.push({ rowStart, colStart });
+    while (!q.empty()) {
+        auto [curRow, curCol] = q.front();
+        q.pop();
+        for (auto [dx, dy] : directions) {
+            int nextRow = curRow + dy;
+            int nextCol = curCol + dx;
+            if (nextRow < 0 || nextRow >= n) {
+                finalPos = { curRow, curCol };
+                isSolved = 1;
+                break;
+            }
+            if (nextCol < 0 || nextCol >= m) {
+                finalPos = { curRow, curCol };
+                isSolved = 1;
+                break;
+            }
+            if (visited[nextRow][nextCol])
+                continue;
+            if (graph[nextRow][nextCol] == '#')
+                continue;
+            q.push({ nextRow, nextCol });
+            visited[nextRow][nextCol] = 1;
+            from[nextRow][nextCol] = { curRow, curCol };
+        }
+        if (isSolved)
+            break;
+    }
+    if (!isSolved) {
+        cout << "Solution does not exist\n";
+        return;
+    }
+    auto [curRow, curCol] = finalPos;
+    cout << curRow << ' ' << curCol << '\n';
+    while (curRow != rowStart || curCol != colStart) {
+        graph[curRow][curCol] = 'o';
+        auto fromPos = from[curRow][curCol];
+        curRow = fromPos.first;
+        curCol = fromPos.second;
+    }
+    for (string& s : graph) {
+        cout << s << '\n';
+    }
+}
+
+int main() {
+    string map = "#####\n"
+        "#.S.#\n"
+        "###.#\n"
+        "#...#\n"
+        "#.###";
+
+    solve(map);
+
+    
+    return 0;
+}
